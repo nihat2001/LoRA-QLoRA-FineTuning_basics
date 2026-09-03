@@ -4,6 +4,18 @@ A comprehensive hands-on guide and codebase for efficient fine-tuning of Large L
 
 ---
 
+┌─────────────────┐     ┌───────────────────────┐     ┌──────────────────┐
+│  Dataset Format │ ──> │ 4-Bit Model + LoRA    │ ──> │ SFT Trainer      │
+│  (Chat Template)│     │ Config Initialization │     │ (Fine-Tuning)    │
+└─────────────────┘     └───────────────────────┘     └──────────────────┘
+                                                               │
+                                                               ▼
+                                                      ┌──────────────────┐
+                                                      │ Inference & Eval │
+                                                      └──────────────────┘
+                                                      
+---
+                                                      
 ## 📊 Quick Overview & Comparison
 
 | Feature / Metric | LoRA (Low-Rank Adaptation) | QLoRA (Quantized LoRA) |
@@ -26,12 +38,3 @@ A comprehensive hands-on guide and codebase for efficient fine-tuning of Large L
 | `target_modules` | `["q_proj", "v_proj"]` | Target attention projection matrices to apply LoRA. |
 | `bnb_4bit_quant_type` | `"nf4"` | Information-theoretically optimal quantile quantization data type. |
 | `bnb_4bit_compute_dtype`| `torch.bfloat16` | Precision used for internal forward/backward computation passes. |
-
----
-
-## 🛠️ Requirements & Installation
-
-Make sure to install the required libraries before running the scripts:
-
-```bash
-pip install -q -U transformers datasets peft trl bitsandbytes accelerate
