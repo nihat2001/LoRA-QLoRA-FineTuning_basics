@@ -1,40 +1,11 @@
 # 🚀 Fine-Tuning LLMs with LoRA & QLoRA
 
-A comprehensive hands-on guide and codebase for efficient fine-tuning of Large Language Models (LLMs) using **LoRA** (Low-Rank Adaptation) and **QLoRA** (Quantized Low-Rank Adaptation) with Hugging Face's `PEFT`, `TRL`, and `bitsandbytes`.
-
----
-
-┌─────────────────┐     ┌───────────────────────┐     ┌──────────────────┐
-│  Dataset Format │ ──> │ 4-Bit Model + LoRA    │ ──> │ SFT Trainer      │
-│  (Chat Template)│     │ Config Initialization │     │ (Fine-Tuning)    │
-└─────────────────┘     └───────────────────────┘     └──────────────────┘
-                                                               │
-                                                               ▼
-                                                      ┌──────────────────┐
-                                                      │ Inference & Eval │
-                                                      └──────────────────┘
-                                                      
----
-                                                      
-## 📊 Quick Overview & Comparison
-
-| Feature / Metric | LoRA (Low-Rank Adaptation) | QLoRA (Quantized LoRA) |
-| :--- | :--- | :--- |
-| **Base Model Precision** | 16-bit (FP16 / BF16) | 4-bit NormalFloat (NF4) |
-| **GPU Memory Requirement** | Moderate | Very Low (~65% reduction) |
-| **Quantization Scheme** | None | 4-bit quantization + Double Quantization |
-| **Compute Dtype** | FP16 or BF16 | BF16 (Recommended for stability) |
-| **Best For** | Medium/Large GPU memory setup | Consumer GPUs / Limited VRAM |
-
----
-
-## ⚙️ Hyperparameters & Configuration
-
-| Parameter | Recommended Value | Description |
-| :--- | :--- | :--- |
-| `r` (Rank) | `8` or `16` | Dimension of the low-rank matrices. Higher values increase trainable parameters. |
-| `lora_alpha` | `16` or `32` | Scaling factor for LoRA weights (typically set to `2 * r`). |
-| `lora_dropout` | `0.05` | Dropout probability for LoRA layers to prevent overfitting. |
-| `target_modules` | `["q_proj", "v_proj"]` | Target attention projection matrices to apply LoRA. |
-| `bnb_4bit_quant_type` | `"nf4"` | Information-theoretically optimal quantile quantization data type. |
-| `bnb_4bit_compute_dtype`| `torch.bfloat16` | Precision used for internal forward/backward computation passes. |
+| Section | Details / Contents |
+| :--- | :--- |
+| **Project Overview** | A comprehensive hands-on guide and codebase for efficient fine-tuning of Large Language Models (LLMs) using **LoRA** (Low-Rank Adaptation) and **QLoRA** (Quantized Low-Rank Adaptation) with Hugging Face's `PEFT`, `TRL`, and `bitsandbytes`. |
+| **Pipeline Workflow** | ```mermaid<br/>flowchart LR<br/>    A[Dataset Format<br/>Chat Template] --> B[4-Bit Model + LoRA<br/>Config Initialization]<br/>    B --> C[SFT Trainer<br/>Fine-Tuning]<br/>    C --> D[Inference & Eval]<br/>``` |
+| **Method Comparison** | <ul><li>**Base Model Precision:** LoRA = 16-bit (FP16/BF16) \| QLoRA = 4-bit NormalFloat (NF4)</li><li>**GPU Memory:** LoRA = Moderate \| QLoRA = Very Low (~65% reduction)</li><li>**Quantization:** LoRA = None \| QLoRA = 4-bit + Double Quantization</li><li>**Compute Dtype:** LoRA = FP16/BF16 \| QLoRA = BF16 (Recommended)</li><li>**Best For:** LoRA = Medium/Large GPUs \| QLoRA = Consumer GPUs / Limited VRAM</li></ul> |
+| **Hyperparameters & Config** | <ul><li>`r` (Rank): `8` or `16` (Low-rank matrix dimension)</li><li>`lora_alpha`: `16` or `32` (Weight scaling factor, `2 * r`)</li><li>`lora_dropout`: `0.05` (Dropout to prevent overfitting)</li><li>`target_modules`: `["q_proj", "v_proj"]` (Target layers)</li><li>`load_in_4bit`: `True` (Enables 4-bit quantization)</li><li>`bnb_4bit_quant_type`: `"nf4"` (Optimal quantile data type)</li><li>`bnb_4bit_compute_dtype`: `torch.bfloat16` (Compute precision)</li><li>`num_train_epochs`: `3` (Number of training epochs)</li><li>`per_device_train_batch_size`: `2` (Batch size per device)</li><li>`learning_rate`: `2e-4` (Learning rate for AdamW)</li><li>`max_length`: `512` (Maximum sequence length)</li></ul> |
+| **Requirements** | ```bash<br/>pip install -q -U transformers datasets peft trl bitsandbytes accelerate<br/>``` |
+| **Code Structure & Example** | ```python<br/>import torch<br/>from datasets import Dataset<br/>from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig<br/>from peft import LoraConfig<br/>from trl import SFTTrainer, SFTConfig<br/><br/># 1. Quantization Configuration (QLoRA)<br/>bnb_config = BitsAndBytesConfig(<br/>    load_in_4bit=True,<br/>    bnb_4bit_quant_type="nf4",<br/>    bnb_4bit_compute_dtype=torch.bfloat16,<br/>)<br/><br/># 2. Model & Tokenizer<br/>model_name = "Qwen/Qwen2.5-0.5B-Instruct"<br/>tokenizer = AutoTokenizer.from_pretrained(model_name)<br/>model = AutoModelForCausalLM.from_pretrained(<br/>    model_name,<br/>    quantization_config=bnb_config,<br/>    device_map="auto"<br/>)<br/><br/># 3. LoRA Configuration<br/>lora_config = LoraConfig(<br/>    r=8,<br/>    lora_alpha=16,<br/>    lora_dropout=0.05,<br/>    target_modules=["q_proj", "v_proj"],<br/>    task_type="CAUSAL_LM"<br/>)<br/>``` |
+| **License** | This project is licensed under the [MIT License](LICENSE). |
